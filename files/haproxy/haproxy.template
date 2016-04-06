@@ -17,7 +17,19 @@ defaults
     timeout http-keep-alive 5s
 
 listen stats
-    bind *:80
+    bind *:8001
     stats enable
     stats uri /stats
     stats refresh 5s
+
+frontend simple-app
+    bind *:8000
+    default_backend simple-app
+
+backend simple-app
+    mode http
+    balance roundrobin
+    option forwardfor
+    option httpchk HEAD / HTTP/1.1\r\nHost:localhost
+    {{range service "simple-app"}}
+    server {{.ID}} {{.Address}}:{{.Port}} check{{end}}
