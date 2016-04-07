@@ -30,6 +30,8 @@ backend simple-app
     mode http
     balance roundrobin
     option forwardfor
-    option httpchk HEAD / HTTP/1.1\r\nHost:localhost
+    option httpchk OPTIONS / HTTP/1.0
+    http-check expect status 200
+    default-server inter 5s fall 3 rise 2
     {{range service "simple-app"}}
     server {{.ID}} {{.Address}}:{{.Port}} check{{end}}
